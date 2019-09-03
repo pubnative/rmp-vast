@@ -96,20 +96,18 @@ const _parseCreatives = function (creative) {
     FW.log('_parseCreatives');
     FW.log(creative);
   }
-  // filter companion ads
-  for (let i = 0, len = creative.length; i < len; i++) {
-    const currentCreative = creative[i];
-    const companionAds = currentCreative.getElementsByTagName('CompanionAds');
-    if (companionAds.length > 0) {
-      COMPANION.parse.call(this, companionAds);
-      break;
-    }
-  }
+
   for (let i = 0, len = creative.length; i < len; i++) {
     const currentCreative = creative[i];
     // we only pick the first creative that is either Linear or NonLinearAds
     const nonLinearAds = currentCreative.getElementsByTagName('NonLinearAds');
     const linear = currentCreative.getElementsByTagName('Linear');
+    const companionAds = currentCreative.getElementsByTagName('CompanionAds');
+    // filter companion ads
+    if (companionAds.length > 0) {
+      COMPANION.parse.call(this, companionAds);
+      continue;
+    }
     // for now we ignore CreativeExtensions tag
     //let creativeExtensions = currentCreative.getElementsByTagName('CreativeExtensions');
     // we expect 1 Linear or NonLinearAds tag 

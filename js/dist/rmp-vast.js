@@ -2968,26 +2968,20 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
       _fw.default.log('_parseCreatives');
 
       _fw.default.log(creative);
-    } // filter companion ads
-
+    }
 
     for (var i = 0, len = creative.length; i < len; i++) {
-      var currentCreative = creative[i];
-      var companionAds = currentCreative.getElementsByTagName('CompanionAds');
+      var currentCreative = creative[i]; // we only pick the first creative that is either Linear or NonLinearAds
+
+      var nonLinearAds = currentCreative.getElementsByTagName('NonLinearAds');
+      var linear = currentCreative.getElementsByTagName('Linear');
+      var companionAds = currentCreative.getElementsByTagName('CompanionAds'); // filter companion ads
 
       if (companionAds.length > 0) {
         _companion.default.parse.call(this, companionAds);
 
-        break;
-      }
-    }
-
-    for (var _i = 0, _len = creative.length; _i < _len; _i++) {
-      var _currentCreative = creative[_i]; // we only pick the first creative that is either Linear or NonLinearAds
-
-      var nonLinearAds = _currentCreative.getElementsByTagName('NonLinearAds');
-
-      var linear = _currentCreative.getElementsByTagName('Linear'); // for now we ignore CreativeExtensions tag
+        continue;
+      } // for now we ignore CreativeExtensions tag
       //let creativeExtensions = currentCreative.getElementsByTagName('CreativeExtensions');
       // we expect 1 Linear or NonLinearAds tag 
 
@@ -3057,8 +3051,8 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
           }
 
           if (clickTracking.length > 0) {
-            for (var _i2 = 0, _len2 = clickTracking.length; _i2 < _len2; _i2++) {
-              var clickTrackingUrl = _fw.default.getNodeValue(clickTracking[_i2], true);
+            for (var _i = 0, _len = clickTracking.length; _i < _len; _i++) {
+              var clickTrackingUrl = _fw.default.getNodeValue(clickTracking[_i], true);
 
               if (clickTrackingUrl !== null) {
                 this.trackingTags.push({
@@ -3134,15 +3128,15 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
       // we are not in a pod yet ... see if one exists or not
       var standaloneAds = [];
 
-      for (var _i3 = 0, _len3 = ad.length; _i3 < _len3; _i3++) {
-        var _sequence = ad[_i3].getAttribute('sequence');
+      for (var _i2 = 0, _len2 = ad.length; _i2 < _len2; _i2++) {
+        var _sequence = ad[_i2].getAttribute('sequence');
 
         if (_sequence === '' || _sequence === null) {
           // standalone ads
-          standaloneAds.push(ad[_i3]);
+          standaloneAds.push(ad[_i2]);
         } else {
           // if it has sequence attribute then push to adPod array
-          this.adPod.push(ad[_i3]);
+          this.adPod.push(ad[_i2]);
         }
       }
 
@@ -3303,8 +3297,8 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
     }
 
     if (impression.length > 0) {
-      for (var _i4 = 0, _len4 = impression.length; _i4 < _len4; _i4++) {
-        var impressionUrl = _fw.default.getNodeValue(impression[_i4], true);
+      for (var _i3 = 0, _len3 = impression.length; _i3 < _len3; _i3++) {
+        var impressionUrl = _fw.default.getNodeValue(impression[_i3], true);
 
         if (impressionUrl !== null) {
           this.trackingTags.push({
