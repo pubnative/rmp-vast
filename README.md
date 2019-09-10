@@ -1,6 +1,6 @@
 # rmp-vast
 
-A client-side JavaScript solution to load, parse and display VAST resources (advertising).
+A client-side JavaScript solution to load, parse and display VAST resources (advertising). Testing PR options.
 
 It aims at closely implementing the [IAB VAST 3 specification](https://www.iab.com/guidelines/digital-video-ad-serving-template-vast-3-0/) for web-based environments 
 (e.g. browser, WebView ...) where both HTML5 video and JavaScript are available.
