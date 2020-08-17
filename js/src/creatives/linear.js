@@ -9,6 +9,7 @@ import SKIP from './skip';
 import ICONS from './icons';
 import VASTERRORS from '../utils/vast-errors';
 import RMPCONNECTION from '../../../externals/rmp-connection';
+import MUTE from './mute';
 
 const LINEAR = {};
 
@@ -172,6 +173,8 @@ LINEAR.update = function (url, type) {
       this.vastPlayer.addEventListener('click', this.onClickThrough);
     }
   }
+
+  MUTE.append.call(this);
 
   // skippable - only where vast player is different from 
   // content player
