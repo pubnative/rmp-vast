@@ -6,10 +6,6 @@ import VPAID from '../players/vpaid';
 const MUTE = {};
 
 const _setMute = function (muted) {
-
-  if (typeof muted !== 'boolean') {
-    return;
-  }
   if (this.adOnStage && this.adIsLinear) {
     if (this.isVPAID) {
       if (muted) {
@@ -26,36 +22,27 @@ const _setMute = function (muted) {
 };
 
 const _getMute = function () {
-  if (this.adOnStage && this.adIsLinear) {
-    if (this.isVPAID) {
-      if (VPAID.getAdVolume.call(this) === 0) {
-        return true;
-      }
-      return false;
-    } else {
-      return VASTPLAYER.getMute.call(this);
-    }
+  if (!this.adOnStage || !this.adIsLinear) {
+    return CONTENTPLAYER.getMute.call(this);
   }
-  
-  return CONTENTPLAYER.getMute.call(this);
+
+  return this.isVPAID
+    ? VPAID.getAdVolume.call(this) === 0
+    : VASTPLAYER.getMute.call(this);
 };
 
 const _onClickMute = function (event) {
-  if (event) {
-    event.stopPropagation();
-    if (event.type === 'touchend') {
-      event.preventDefault();
-    }
+  event.stopPropagation();
+  if (event.type === 'touchend') {
+    event.preventDefault();
   }
-  this.getMute = _getMute.bind(this);
-  this.setMute = _setMute.bind(this);
 
-  if (this.getMute()) {
-    this.setMute(false);
+  if (_getMute.call(this)) {
+    _setMute.call(this, false);
     FW.removeClass(this.muteIcon, 'rmp-ad-container-unmute-icon');
   }
   else {
-    this.setMute(true);
+    _setMute.call(this, true);
     FW.addClass(this.muteIcon, 'rmp-ad-container-unmute-icon');
   }
 };

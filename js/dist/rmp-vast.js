@@ -1699,10 +1699,6 @@ var _vpaid = _interopRequireDefault(require("../players/vpaid"));
 var MUTE = {};
 
 var _setMute = function _setMute(muted) {
-  if (typeof muted !== 'boolean') {
-    return;
-  }
-
   if (this.adOnStage && this.adIsLinear) {
     if (this.isVPAID) {
       if (muted) {
@@ -1719,39 +1715,26 @@ var _setMute = function _setMute(muted) {
 };
 
 var _getMute = function _getMute() {
-  if (this.adOnStage && this.adIsLinear) {
-    if (this.isVPAID) {
-      if (_vpaid.default.getAdVolume.call(this) === 0) {
-        return true;
-      }
-
-      return false;
-    } else {
-      return _vastPlayer.default.getMute.call(this);
-    }
+  if (!this.adOnStage || !this.adIsLinear) {
+    return _contentPlayer.default.getMute.call(this);
   }
 
-  return _contentPlayer.default.getMute.call(this);
+  return this.isVPAID ? _vpaid.default.getAdVolume.call(this) === 0 : _vastPlayer.default.getMute.call(this);
 };
 
 var _onClickMute = function _onClickMute(event) {
-  if (event) {
-    event.stopPropagation();
+  event.stopPropagation();
 
-    if (event.type === 'touchend') {
-      event.preventDefault();
-    }
+  if (event.type === 'touchend') {
+    event.preventDefault();
   }
 
-  this.getMute = (0, _bind.default)(_getMute).call(_getMute, this);
-  this.setMute = (0, _bind.default)(_setMute).call(_setMute, this);
-
-  if (this.getMute()) {
-    this.setMute(false);
+  if (_getMute.call(this)) {
+    _setMute.call(this, false);
 
     _fw.default.removeClass(this.muteIcon, 'rmp-ad-container-unmute-icon');
   } else {
-    this.setMute(true);
+    _setMute.call(this, true);
 
     _fw.default.addClass(this.muteIcon, 'rmp-ad-container-unmute-icon');
   }
