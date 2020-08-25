@@ -3486,6 +3486,35 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
     _filterAdPod.call(this, ad);
   };
 
+  var _parseXml = function _parseXml(data) {
+    _helpers.default.createApiEvent.call(this, 'adtagloaded');
+
+    var newxml;
+
+    try {
+      // Parse XML
+      var parser = new DOMParser();
+      newxml = parser.parseFromString(data, 'text/xml');
+
+      if (DEBUG) {
+        _fw.default.log('parsed XML document follows');
+
+        _fw.default.log(newxml);
+      }
+    } catch (e) {
+      _fw.default.trace(e); // in case this is a wrapper we need to ping for errors on originating tags
+
+
+      _ping.default.error.call(this, 100);
+
+      _vastErrors.default.process.call(this, 100);
+
+      return;
+    }
+
+    _onXmlAvailable.call(this, newxml);
+  };
+
   var _makeAjaxRequest = function _makeAjaxRequest(vastUrl) {
     var _this = this;
 
@@ -3518,32 +3547,7 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
         _fw.default.log('VAST loaded from ' + _this.adTagUrl);
       }
 
-      _helpers.default.createApiEvent.call(_this, 'adtagloaded');
-
-      var xml;
-
-      try {
-        // Parse XML
-        var parser = new DOMParser();
-        xml = parser.parseFromString(data, 'text/xml');
-
-        if (DEBUG) {
-          _fw.default.log('parsed XML document follows');
-
-          _fw.default.log(xml);
-        }
-      } catch (e) {
-        _fw.default.trace(e); // in case this is a wrapper we need to ping for errors on originating tags
-
-
-        _ping.default.error.call(_this, 100);
-
-        _vastErrors.default.process.call(_this, 100);
-
-        return;
-      }
-
-      _onXmlAvailable.call(_this, xml);
+      _parseXml.call(_this, data);
     }).catch(function (e) {
       _fw.default.trace(e); // in case this is a wrapper we need to ping for errors on originating tags
 
@@ -3560,6 +3564,8 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   };
 
   window.RmpVast.prototype.loadAds = function (vastUrl) {
+    var isUrl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
     if (DEBUG) {
       _fw.default.log('loadAds starts');
     } // if player is not initialized - this must be done now
@@ -3598,7 +3604,7 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
       _contentPlayer.default.preventSeekingForCustomPlayback.call(this);
     }
 
-    _makeAjaxRequest.call(this, vastUrl);
+    isUrl ? _makeAjaxRequest.call(this, vastUrl) : _parseXml.call(this, vastUrl);
   };
   /* module:begins */
 
