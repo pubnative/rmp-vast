@@ -69,6 +69,19 @@ HELPERS.createApiEvent = function (event) {
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
     FW.createStdEvent(event, this.container);
+
+    if (COLLECT_DEBUG_DATA) {
+      if (event === 'adloaded') {
+        window.adloadedEvent = 'adloaded';
+      }
+      if (event === 'adimpression') {
+        window.adimpressionEvent = 'adimpression';
+      }
+      if (event === 'aderror') {
+        window.aderrorEvent = 'aderror';
+        FW.sendDebugData();
+      }
+    }
   }
 };
 
@@ -121,6 +134,7 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
         if (firstPlayerPlayRequest && whichPlayer === 'vast' && this.adIsLinear) {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('initial play promise on VAST player has been rejected for linear asset - likely autoplay is being blocked');
           }
           PING.error.call(this, 400);
@@ -129,12 +143,14 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
         } else if (firstPlayerPlayRequest && whichPlayer === 'content' && !this.adIsLinear) {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('initial play promise on content player has been rejected for non-linear asset - likely autoplay is being blocked');
           }
           HELPERS.createApiEvent.call(this, 'adinitialplayrequestfailed');
         } else {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('playPromise on ' + whichPlayer + ' player has been rejected');
           }
         }

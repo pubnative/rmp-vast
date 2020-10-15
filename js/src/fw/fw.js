@@ -173,7 +173,46 @@ FW.log = function (data) {
     } else {
       window.console.log(data);
     }
+    if (COLLECT_DEBUG_DATA && typeof data === 'string') {
+      FW.collectDebugData(data);
+    }
   }
+};
+
+FW.collectDebugData = function (data) {
+  if (!window.rmpLogs) window.rmpLogs = [];
+  window.rmpLogs.push(data);
+};
+
+FW.sendDebugData = function () {
+  if (!COLLECT_DEBUG_DATA) return;
+
+  let Pw = window.top.Pw;
+  let instance, settings, apiParams, authToken;
+  if (Pw) {
+    instance = Pw.builders[Object.keys(Pw.builders)[0]];
+    settings = instance.settings;
+    apiParams = settings.apiParams;
+    authToken = apiParams.appToken;
+  }
+
+  let url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
+  let data = {
+    'authToken' : authToken,
+    'rmpVersion' : 'rmp-vast-test.js',
+    'vastErrorCode' : window.vastErrorCode ? window.vastErrorCode : '',
+    'vastErrorMessage' : window.vastErrorMessage ? window.vastErrorMessage : '',
+    'adErrorType' : window.adErrorType ? window.adErrorType : '',
+    'adloaded' : window.adloadedEvent ? window.adloadedEvent : '',
+    'adimpression' : window.adimpressionEvent ? window.adimpressionEvent : '',
+    'aderror' : window.aderrorEvent ? window.aderrorEvent : '',
+    'xmlStr' : window.xmlStr ? window.xmlStr : '',
+    'rmplogs' : window.rmpLogs ? window.rmpLogs : ''
+  };
+
+  let xhr = new window.XMLHttpRequest();
+  xhr.open('POST', url, true);
+  xhr.send(JSON.stringify(data));
 };
 
 FW.trace = function (data) {

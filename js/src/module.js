@@ -385,7 +385,7 @@ const _filterAdPod = function (ad) {
     }
   }
   // in case no Creative with Wrapper we make our redirect call here
-  if (this.isWrapper && !creative) {
+  if (this.isWrapper && (!creative || (creative.length > 0 && creative[0].childNodes.length === 0))) {
     _execRedirect.call(this);
     return;
   }
@@ -447,6 +447,11 @@ const _onXmlAvailable = function (xml) {
 
 const _parseXml = function (data) {
   HELPERS.createApiEvent.call(this, 'adtagloaded');
+  if (COLLECT_DEBUG_DATA) {
+    if (!window.xmlStr) window.xmlStr = [];
+    window.xmlStr.push(data);
+  }
+
   let newxml;
   try {
     // Parse XML

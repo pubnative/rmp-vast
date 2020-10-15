@@ -18,6 +18,7 @@ import ICONS from './creatives/icons';
   'use strict';
 
   window.DEBUG = true;
+  window.COLLECT_DEBUG_DATA = false;
 
   if (typeof window === 'undefined' || typeof window.document === 'undefined') {
     if (DEBUG) {
@@ -405,7 +406,7 @@ import ICONS from './creatives/icons';
       }
     }
     // in case no Creative with Wrapper we make our redirect call here
-    if (this.isWrapper && !creative) {
+    if (this.isWrapper && (!creative || (creative.length > 0 && creative[0].childNodes.length === 0))) {
       _execRedirect.call(this);
       return;
     }
@@ -467,6 +468,11 @@ import ICONS from './creatives/icons';
 
   const _parseXml = function (data) {
     HELPERS.createApiEvent.call(this, 'adtagloaded');
+    if (COLLECT_DEBUG_DATA) {
+      if (!window.xmlStr) window.xmlStr = [];
+      window.xmlStr.push(data);
+    }
+
     let newxml;
     try {
       // Parse XML
