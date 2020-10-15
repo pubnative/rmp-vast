@@ -82,7 +82,7 @@ ICONS.parse = function (icons) {
     };
     // optional IconViewTracking
     const iconViewTracking = currentIcon.getElementsByTagName('IconViewTracking');
-    const iconViewTrackingUrl = FW.getNodeValue(iconViewTracking[0], true);
+    let iconViewTrackingUrl = iconViewTracking[0] ? FW.getNodeValue(iconViewTracking[0], true) : null;
     if (iconViewTrackingUrl !== null) {
       iconData.iconViewTrackingUrl = iconViewTrackingUrl;
     }
