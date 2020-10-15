@@ -445,6 +445,27 @@ const _onXmlAvailable = function (xml) {
   _filterAdPod.call(this, ad);
 };
 
+const _parseXml = function (data) {
+  HELPERS.createApiEvent.call(this, 'adtagloaded');
+  let newxml;
+  try {
+    // Parse XML
+    const parser = new DOMParser();
+    newxml = parser.parseFromString(data, 'text/xml');
+    if (DEBUG) {
+      FW.log('parsed XML document follows');
+      FW.log(newxml);
+    }
+  } catch (e) {
+    FW.trace(e);
+    // in case this is a wrapper we need to ping for errors on originating tags
+    PING.error.call(this, 100);
+    VASTERRORS.process.call(this, 100);
+    return;
+  }
+  _onXmlAvailable.call(this, newxml);
+};
+
 const _makeAjaxRequest = function (vastUrl) {
   // we check for required VAST URL and API here
   // as we need to have this.currentContentSrc available for iOS
@@ -467,24 +488,7 @@ const _makeAjaxRequest = function (vastUrl) {
     if (DEBUG) {
       FW.log('VAST loaded from ' + this.adTagUrl);
     }
-    HELPERS.createApiEvent.call(this, 'adtagloaded');
-    let xml;
-    try {
-      // Parse XML
-      const parser = new DOMParser();
-      xml = parser.parseFromString(data, 'text/xml');
-      if (DEBUG) {
-        FW.log('parsed XML document follows');
-        FW.log(xml);
-      }
-    } catch (e) {
-      FW.trace(e);
-      // in case this is a wrapper we need to ping for errors on originating tags
-      PING.error.call(this, 100);
-      VASTERRORS.process.call(this, 100);
-      return;
-    }
-    _onXmlAvailable.call(this, xml);
+    _parseXml.call(this, data);
   }).catch((e) => {
     FW.trace(e);
     // in case this is a wrapper we need to ping for errors on originating tags
@@ -498,7 +502,7 @@ const _onDestroyLoadAds = function (vastUrl) {
   this.loadAds(vastUrl);
 };
 
-RmpVast.prototype.loadAds = function (vastUrl) {
+RmpVast.prototype.loadAds = function (vastUrl, isUrl = true) {
   if (DEBUG) {
     FW.log('loadAds starts');
   }
@@ -528,7 +532,7 @@ RmpVast.prototype.loadAds = function (vastUrl) {
     // on iOS we need to prevent seeking when linear ad is on stage
     CONTENTPLAYER.preventSeekingForCustomPlayback.call(this);
   }
-  _makeAjaxRequest.call(this, vastUrl);
+  isUrl ? _makeAjaxRequest.call(this, vastUrl) : _parseXml.call(this, vastUrl);
 };
 
 export default RmpVast;
