@@ -73,6 +73,9 @@ const _execRedirect = function () {
   const redirectUrl = FW.getNodeValue(this.vastAdTagURI[0], true);
   if (DEBUG) {
     FW.log('redirect URL is ' + redirectUrl);
+    if (COLLECT_DEBUG_DATA) {
+      window.redirectUrl = redirectUrl;
+    }
   }
   if (redirectUrl !== null) {
     if (this.params.maxNumRedirects > this.redirectsFollowed) {

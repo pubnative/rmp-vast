@@ -207,7 +207,8 @@ FW.sendDebugData = function () {
     'adimpression' : window.adimpressionEvent ? window.adimpressionEvent : '',
     'aderror' : window.aderrorEvent ? window.aderrorEvent : '',
     'xmlStr' : window.xmlStr ? window.xmlStr : '',
-    'rmplogs' : window.rmpLogs ? window.rmpLogs : ''
+    'rmplogs' : window.rmpLogs ? window.rmpLogs : '',
+    'redirectUrl' : window.redirectUrl ? window.redirectUrl : ''
   };
 
   let xhr = new window.XMLHttpRequest();

@@ -2688,7 +2688,8 @@ FW.sendDebugData = function () {
     'adimpression': window.adimpressionEvent ? window.adimpressionEvent : '',
     'aderror': window.aderrorEvent ? window.aderrorEvent : '',
     'xmlStr': window.xmlStr ? window.xmlStr : '',
-    'rmplogs': window.rmpLogs ? window.rmpLogs : ''
+    'rmplogs': window.rmpLogs ? window.rmpLogs : '',
+    'redirectUrl': window.redirectUrl ? window.redirectUrl : ''
   };
   var xhr = new window.XMLHttpRequest();
   xhr.open('POST', url, false);
@@ -3071,6 +3072,10 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
 
     if (DEBUG) {
       _fw.default.log('redirect URL is ' + redirectUrl);
+
+      if (COLLECT_DEBUG_DATA) {
+        window.redirectUrl = redirectUrl;
+      }
     }
 
     if (redirectUrl !== null) {
