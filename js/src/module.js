@@ -58,7 +58,9 @@ const RmpVast = function (id, params) {
     }
     FW.log(filteredEnv);
   }
+  this.sendLogs = FW.sendDebugData;
 };
+RmpVast.version = 'v1';
 
 // enrich RmpVast prototype with API methods
 API.attach(RmpVast);

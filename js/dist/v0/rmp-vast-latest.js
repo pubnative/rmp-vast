@@ -980,7 +980,8 @@ ICONS.parse = function (icons) {
     }; // optional IconViewTracking
 
     var iconViewTracking = currentIcon.getElementsByTagName('IconViewTracking');
-    var iconViewTrackingUrl = iconViewTracking[0] ? _fw.default.getNodeValue(iconViewTracking[0], true) : null;
+
+    var iconViewTrackingUrl = _fw.default.getNodeValue(iconViewTracking[0], true);
 
     if (iconViewTrackingUrl !== null) {
       iconData.iconViewTrackingUrl = iconViewTrackingUrl;
@@ -2666,28 +2667,24 @@ FW.collectDebugData = function (data) {
 };
 
 FW.sendDebugData = function () {
-  if (!COLLECT_DEBUG_DATA) return;
+  var authToken = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
   var Pw = window.top.Pw;
-  var instance, settings, apiParams, authToken;
 
   if (Pw) {
-    instance = Pw.builders[(0, _keys.default)(Pw.builders)[0]];
-    settings = instance.settings;
-    apiParams = settings.apiParams;
+    var instance = Pw.builders[(0, _keys.default)(Pw.builders)[0]];
+    var settings = instance.settings;
+    var apiParams = settings.apiParams;
     authToken = apiParams.appToken;
   }
 
   var url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   var data = {
     'authToken': authToken,
-    'rmpVersion': 'v1',
-    'vastErrorCode': window.vastErrorCode ? window.vastErrorCode : '',
-    'vastErrorMessage': window.vastErrorMessage ? window.vastErrorMessage : '',
-    'adErrorType': window.adErrorType ? window.adErrorType : '',
-    'adloaded': window.adloadedEvent ? window.adloadedEvent : '',
-    'adimpression': window.adimpressionEvent ? window.adimpressionEvent : '',
-    'aderror': window.aderrorEvent ? window.aderrorEvent : '',
-    'xmlStr': window.xmlStr ? window.xmlStr : '',
+    'rmpVersion': 'rmp-vast-test.js',
+    'vastErrorCode': window.rmpVast.vastErrorCode ? window.rmpVast.vastErrorCode : '',
+    'vastErrorMessage': window.rmpVast.vastErrorMessage ? window.rmpVast.vastErrorMessage : '',
+    'adErrorType': window.rmpVast.adErrorType ? window.rmpVast.adErrorType : '',
+    'xmlStr': window.rmpVast.xmlStr ? window.rmpVast.xmlStr : '',
     'rmplogs': window.rmpLogs ? window.rmpLogs : ''
   };
   var xhr = new window.XMLHttpRequest();
@@ -2970,8 +2967,7 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   'use strict';
 
   window.DEBUG = true;
-  window.COLLECT_DEBUG_DATA = false;
-  window.SEND_LOGS_ONIMPRESSION = false;
+  window.COLLECT_DEBUG_DATA = true;
 
   if (typeof window === 'undefined' || typeof window.document === 'undefined') {
     if (DEBUG) {
@@ -3052,11 +3048,8 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
 
       _fw.default.log(filteredEnv);
     }
+  }; // enrich RmpVast prototype with API methods
 
-    this.sendLogs = _fw.default.sendDebugData;
-  };
-
-  window.RmpVast.version = 'v1'; // enrich RmpVast prototype with API methods
 
   _api.default.attach(window.RmpVast);
 
@@ -3536,11 +3529,7 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   var _parseXml = function _parseXml(data) {
     _helpers.default.createApiEvent.call(this, 'adtagloaded');
 
-    if (COLLECT_DEBUG_DATA) {
-      if (!window.xmlStr) window.xmlStr = [];
-      window.xmlStr.push(data);
-    }
-
+    if (!this.xmlStr) this.xmlStr = data;
     var newxml;
 
     try {
@@ -4021,6 +4010,10 @@ VASTPLAYER.init = function () {
 
   _fw.default.hide(this.adContainer);
 
+  if (DEBUG) {
+    _fw.default.log('this.useContentPlayerForAds - ' + this.useContentPlayerForAds);
+  }
+
   if (!this.useContentPlayerForAds) {
     this.vastPlayer = document.createElement('video');
 
@@ -4036,12 +4029,37 @@ VASTPLAYER.init = function () {
     this.vastPlayer.className = 'rmp-ad-vast-video-player';
     this.vastPlayer.controls = false; // this.contentPlayer.muted may not be set because of a bug in some version of Chromium
 
+    if (DEBUG) {
+      _fw.default.logVideoEvents(this.vastPlayer, 'vast');
+
+      _fw.default.log('this.contentPlayer.hasAttribute(\'muted\') - ' + this.contentPlayer.hasAttribute('muted'));
+
+      _fw.default.log('this.contentPlayer.muted - ' + this.contentPlayer.muted);
+    }
+
     if (this.contentPlayer.hasAttribute('muted')) {
       this.contentPlayer.muted = true;
     }
 
+    if (DEBUG) {
+      _fw.default.logVideoEvents(this.vastPlayer, 'vast');
+
+      _fw.default.log('this.vastPlayer.hasAttribute(\'muted\') before - ' + this.vastPlayer.hasAttribute('muted'));
+
+      _fw.default.log('this.vastPlayer.muted before - ' + this.vastPlayer.muted);
+    }
+
     if (this.contentPlayer.muted) {
       this.vastPlayer.muted = true;
+      this.vastPlayer.setAttribute('muted', 'muted');
+    }
+
+    if (DEBUG) {
+      _fw.default.logVideoEvents(this.vastPlayer, 'vast');
+
+      _fw.default.log('this.vastPlayer.hasAttribute(\'muted\') after - ' + this.vastPlayer.hasAttribute('muted'));
+
+      _fw.default.log('this.vastPlayer.muted after - ' + this.vastPlayer.muted);
     } // black poster based 64 png
 
 
@@ -4061,7 +4079,15 @@ VASTPLAYER.init = function () {
     _fw.default.hide(this.vastPlayer);
 
     this.adContainer.appendChild(this.vastPlayer);
+
+    if (DEBUG) {
+      _fw.default.log('innerHTML - ' + this.adContainer.innerHTML);
+    }
   } else {
+    if (DEBUG) {
+      _fw.default.log('vast player is contentplayer');
+    }
+
     this.vastPlayer = this.contentPlayer;
   } // we track ended state for content player
 
@@ -4138,8 +4164,6 @@ VASTPLAYER.append = function (url, type) {
     }
   } else {
     if (url && type) {
-      this.videoUrl = url;
-
       _linear.default.update.call(this, url, type);
     }
   } // wire tracking events
@@ -5918,27 +5942,11 @@ HELPERS.createApiEvent = function (event) {
   // adlinearchange, adexpandedchange, adremainingtimechange 
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
-    _fw.default.createStdEvent(event, this.container);
-
-    if (COLLECT_DEBUG_DATA) {
-      if (event === 'adloaded') {
-        window.adloadedEvent = 'adloaded';
-      }
-
-      if (event === 'adimpression') {
-        window.adimpressionEvent = 'adimpression';
-
-        if (SEND_LOGS_ONIMPRESSION) {
-          _fw.default.sendDebugData();
-        }
-      }
-
-      if (event === 'aderror') {
-        window.aderrorEvent = 'aderror';
-
-        _fw.default.sendDebugData();
-      }
+    if (event === 'aderror') {
+      _fw.default.sendDebugData();
     }
+
+    _fw.default.createStdEvent(event, this.container);
   }
 };
 
@@ -6001,7 +6009,7 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
           if (DEBUG) {
             _fw.default.log(e);
 
-            _fw.default.log('e.message - ' + e.message);
+            _fw.default.log('1 e.message - ' + e.message);
 
             _fw.default.log('initial play promise on VAST player has been rejected for linear asset - likely autoplay is being blocked');
           }
@@ -6015,7 +6023,7 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
           if (DEBUG) {
             _fw.default.log(e);
 
-            _fw.default.log('e.message - ' + e.message);
+            _fw.default.log('2 e.message - ' + e.message);
 
             _fw.default.log('initial play promise on content player has been rejected for non-linear asset - likely autoplay is being blocked');
           }
@@ -6025,7 +6033,7 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
           if (DEBUG) {
             _fw.default.log(e);
 
-            _fw.default.log('e.message - ' + e.message);
+            _fw.default.log('3 e.message - ' + e.message);
 
             _fw.default.log('playPromise on ' + whichPlayer + ' player has been rejected');
           }
@@ -6217,12 +6225,6 @@ var _updateVastError = function _updateVastError(errorCode) {
     _fw.default.log('VAST error message is ' + this.vastErrorMessage);
 
     _fw.default.log('Ad error type is ' + this.adErrorType);
-
-    if (COLLECT_DEBUG_DATA) {
-      window.vastErrorCode = this.vastErrorCode;
-      window.vastErrorMessage = this.vastErrorMessage;
-      window.adErrorType = this.adErrorType;
-    }
   }
 };
 

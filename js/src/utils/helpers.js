@@ -76,6 +76,9 @@ HELPERS.createApiEvent = function (event) {
       }
       if (event === 'adimpression') {
         window.adimpressionEvent = 'adimpression';
+        if (SEND_LOGS_ONIMPRESSION) {
+          FW.sendDebugData();
+        }
       }
       if (event === 'aderror') {
         window.aderrorEvent = 'aderror';
