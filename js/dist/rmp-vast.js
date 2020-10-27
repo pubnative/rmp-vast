@@ -2691,7 +2691,7 @@ FW.sendDebugData = function () {
     'rmplogs': window.rmpLogs ? window.rmpLogs : ''
   };
   var xhr = new window.XMLHttpRequest();
-  xhr.open('POST', url, true);
+  xhr.open('POST', url, false);
   xhr.send((0, _stringify.default)(data));
 };
 
@@ -5918,8 +5918,6 @@ HELPERS.createApiEvent = function (event) {
   // adlinearchange, adexpandedchange, adremainingtimechange 
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
-    _fw.default.createStdEvent(event, this.container);
-
     if (COLLECT_DEBUG_DATA) {
       if (event === 'adloaded') {
         window.adloadedEvent = 'adloaded';
@@ -5939,6 +5937,8 @@ HELPERS.createApiEvent = function (event) {
         _fw.default.sendDebugData();
       }
     }
+
+    _fw.default.createStdEvent(event, this.container);
   }
 };
 

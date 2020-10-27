@@ -211,7 +211,7 @@ FW.sendDebugData = function () {
   };
 
   let xhr = new window.XMLHttpRequest();
-  xhr.open('POST', url, true);
+  xhr.open('POST', url, false);
   xhr.send(JSON.stringify(data));
 };
 

@@ -2667,6 +2667,7 @@ FW.collectDebugData = function (data) {
 };
 
 FW.sendDebugData = function () {
+  if (!COLLECT_DEBUG_DATA) return;
   var authToken = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
   var Pw = window.top.Pw;
 
@@ -2680,15 +2681,19 @@ FW.sendDebugData = function () {
   var url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   var data = {
     'authToken': authToken,
-    'rmpVersion': 'rmp-vast-test.js',
+    'rmpVersion': 'v0',
     'vastErrorCode': window.rmpVast.vastErrorCode ? window.rmpVast.vastErrorCode : '',
     'vastErrorMessage': window.rmpVast.vastErrorMessage ? window.rmpVast.vastErrorMessage : '',
     'adErrorType': window.rmpVast.adErrorType ? window.rmpVast.adErrorType : '',
+    'adloaded': window.adloadedEvent ? window.adloadedEvent : '',
+    'adimpression': window.adimpressionEvent ? window.adimpressionEvent : '',
+    'aderror': window.aderrorEvent ? window.aderrorEvent : '',
     'xmlStr': window.rmpVast.xmlStr ? window.rmpVast.xmlStr : '',
     'rmplogs': window.rmpLogs ? window.rmpLogs : ''
   };
+
   var xhr = new window.XMLHttpRequest();
-  xhr.open('POST', url, true);
+  xhr.open('POST', url, false);
   xhr.send((0, _stringify.default)(data));
 };
 
@@ -2967,7 +2972,8 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   'use strict';
 
   window.DEBUG = true;
-  window.COLLECT_DEBUG_DATA = true;
+  window.COLLECT_DEBUG_DATA = false;
+  window.SEND_LOGS_ONIMPRESSION = false;
 
   if (typeof window === 'undefined' || typeof window.document === 'undefined') {
     if (DEBUG) {
@@ -3047,9 +3053,12 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
       }
 
       _fw.default.log(filteredEnv);
-    }
-  }; // enrich RmpVast prototype with API methods
+    }  
 
+    this.sendLogs = _fw.default.sendDebugData;
+  };
+
+  window.RmpVast.version = 'v0'; // enrich RmpVast prototype with API methods
 
   _api.default.attach(window.RmpVast);
 
@@ -5942,10 +5951,25 @@ HELPERS.createApiEvent = function (event) {
   // adlinearchange, adexpandedchange, adremainingtimechange 
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
-    if (event === 'aderror') {
-      _fw.default.sendDebugData();
-    }
+    if (COLLECT_DEBUG_DATA) {
+      if (event === 'adloaded') {
+        window.adloadedEvent = 'adloaded';
+      }
 
+      if (event === 'adimpression') {
+        window.adimpressionEvent = 'adimpression';
+
+        if (SEND_LOGS_ONIMPRESSION) {
+          _fw.default.sendDebugData();
+        }
+      }
+
+      if (event === 'aderror') {
+        window.aderrorEvent = 'aderror';
+
+        _fw.default.sendDebugData();
+      }
+    }
     _fw.default.createStdEvent(event, this.container);
   }
 };
