@@ -58,7 +58,9 @@ const RmpVast = function (id, params) {
     }
     FW.log(filteredEnv);
   }
+  this.sendLogs = FW.sendDebugData;
 };
+RmpVast.version = 'v1';
 
 // enrich RmpVast prototype with API methods
 API.attach(RmpVast);
@@ -71,6 +73,9 @@ const _execRedirect = function () {
   const redirectUrl = FW.getNodeValue(this.vastAdTagURI[0], true);
   if (DEBUG) {
     FW.log('redirect URL is ' + redirectUrl);
+    if (COLLECT_DEBUG_DATA) {
+      window.redirectUrl = redirectUrl;
+    }
   }
   if (redirectUrl !== null) {
     if (this.params.maxNumRedirects > this.redirectsFollowed) {

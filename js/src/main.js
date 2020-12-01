@@ -19,6 +19,7 @@ import ICONS from './creatives/icons';
 
   window.DEBUG = true;
   window.COLLECT_DEBUG_DATA = false;
+  window.SEND_LOGS_ONIMPRESSION = false;
 
   if (typeof window === 'undefined' || typeof window.document === 'undefined') {
     if (DEBUG) {
@@ -79,7 +80,9 @@ import ICONS from './creatives/icons';
       }
       FW.log(filteredEnv);
     }
+    this.sendLogs = FW.sendDebugData;
   };
+  window.RmpVast.version = 'v1';
 
   // enrich RmpVast prototype with API methods
   API.attach(window.RmpVast);
@@ -92,6 +95,9 @@ import ICONS from './creatives/icons';
     const redirectUrl = FW.getNodeValue(this.vastAdTagURI[0], true);
     if (DEBUG) {
       FW.log('redirect URL is ' + redirectUrl);
+      if (COLLECT_DEBUG_DATA) {
+        window.redirectUrl = redirectUrl;
+      }
     }
     if (redirectUrl !== null) {
       if (this.params.maxNumRedirects > this.redirectsFollowed) {

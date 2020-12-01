@@ -68,20 +68,22 @@ HELPERS.createApiEvent = function (event) {
   // adlinearchange, adexpandedchange, adremainingtimechange 
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
-    FW.createStdEvent(event, this.container);
-
     if (COLLECT_DEBUG_DATA) {
       if (event === 'adloaded') {
         window.adloadedEvent = 'adloaded';
       }
       if (event === 'adimpression') {
         window.adimpressionEvent = 'adimpression';
+        if (SEND_LOGS_ONIMPRESSION) {
+          FW.sendDebugData();
+        }
       }
       if (event === 'aderror') {
         window.aderrorEvent = 'aderror';
         FW.sendDebugData();
       }
     }
+    FW.createStdEvent(event, this.container);
   }
 };
 

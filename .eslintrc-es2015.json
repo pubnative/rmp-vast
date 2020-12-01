@@ -45,6 +45,7 @@
   "globals": {
     "DEBUG": true,
     "COLLECT_DEBUG_DATA": true,
+    "SEND_LOGS_ONIMPRESSION": true,
     "RmpVast": true
   }
 }

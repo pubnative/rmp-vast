@@ -199,7 +199,7 @@ FW.sendDebugData = function () {
   let url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   let data = {
     'authToken' : authToken,
-    'rmpVersion' : 'rmp-vast-test.js',
+    'rmpVersion' : 'v1',
     'vastErrorCode' : window.vastErrorCode ? window.vastErrorCode : '',
     'vastErrorMessage' : window.vastErrorMessage ? window.vastErrorMessage : '',
     'adErrorType' : window.adErrorType ? window.adErrorType : '',
@@ -207,11 +207,12 @@ FW.sendDebugData = function () {
     'adimpression' : window.adimpressionEvent ? window.adimpressionEvent : '',
     'aderror' : window.aderrorEvent ? window.aderrorEvent : '',
     'xmlStr' : window.xmlStr ? window.xmlStr : '',
-    'rmplogs' : window.rmpLogs ? window.rmpLogs : ''
+    'rmplogs' : window.rmpLogs ? window.rmpLogs : '',
+    'redirectUrl' : window.redirectUrl ? window.redirectUrl : ''
   };
 
   let xhr = new window.XMLHttpRequest();
-  xhr.open('POST', url, true);
+  xhr.open('POST', url, false);
   xhr.send(JSON.stringify(data));
 };
 
