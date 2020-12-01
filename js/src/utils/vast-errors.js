@@ -144,6 +144,11 @@ const _updateVastError = function (errorCode) {
     FW.log('VAST error code is ' + this.vastErrorCode);
     FW.log('VAST error message is ' + this.vastErrorMessage);
     FW.log('Ad error type is ' + this.adErrorType);
+    if (COLLECT_DEBUG_DATA) {
+      window.vastErrorCode = this.vastErrorCode;
+      window.vastErrorMessage = this.vastErrorMessage;
+      window.adErrorType = this.adErrorType;
+    }
   }
 };
 

@@ -14,7 +14,7 @@ HELPERS.filterParams = function (inputParams) {
     pauseOnClick: true,
     skipMessage: 'Skip ad',
     skipWaitingMessage: 'Skip ad in',
-    textForClickUIOnMobile: 'Learn more',
+    textForClickUIOnMobile: '', //'Learn more',
     enableVpaid: true,
     outstream: false,
     vpaidSettings: {
@@ -68,6 +68,21 @@ HELPERS.createApiEvent = function (event) {
   // adlinearchange, adexpandedchange, adremainingtimechange 
   // adinteraction, adsizechange
   if (typeof event === 'string' && event !== '') {
+    if (COLLECT_DEBUG_DATA) {
+      if (event === 'adloaded') {
+        window.adloadedEvent = 'adloaded';
+      }
+      if (event === 'adimpression') {
+        window.adimpressionEvent = 'adimpression';
+        if (SEND_LOGS_ONIMPRESSION) {
+          FW.sendDebugData();
+        }
+      }
+      if (event === 'aderror') {
+        window.aderrorEvent = 'aderror';
+        FW.sendDebugData();
+      }
+    }
     FW.createStdEvent(event, this.container);
   }
 };
@@ -121,6 +136,7 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
         if (firstPlayerPlayRequest && whichPlayer === 'vast' && this.adIsLinear) {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('initial play promise on VAST player has been rejected for linear asset - likely autoplay is being blocked');
           }
           PING.error.call(this, 400);
@@ -129,12 +145,14 @@ HELPERS.playPromise = function (whichPlayer, firstPlayerPlayRequest) {
         } else if (firstPlayerPlayRequest && whichPlayer === 'content' && !this.adIsLinear) {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('initial play promise on content player has been rejected for non-linear asset - likely autoplay is being blocked');
           }
           HELPERS.createApiEvent.call(this, 'adinitialplayrequestfailed');
         } else {
           if (DEBUG) {
             FW.log(e);
+            FW.log('e.message - ' + e.message);
             FW.log('playPromise on ' + whichPlayer + ' player has been rejected');
           }
         }

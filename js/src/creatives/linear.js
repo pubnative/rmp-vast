@@ -9,6 +9,7 @@ import SKIP from './skip';
 import ICONS from './icons';
 import VASTERRORS from '../utils/vast-errors';
 import RMPCONNECTION from '../../../externals/rmp-connection';
+import MUTE from './mute';
 
 const LINEAR = {};
 
@@ -113,9 +114,10 @@ const _onPlaybackError = function (event) {
 const _appendClickUIOnMobile = function () {
   // we create a <a> tag rather than using window.open 
   // because it works better in standalone mode and WebView
+  const textBtn = this.params.textForClickUIOnMobile;
   this.clickUIOnMobile = document.createElement('a');
-  this.clickUIOnMobile.className = 'rmp-ad-click-ui-mobile';
-  this.clickUIOnMobile.textContent = this.params.textForClickUIOnMobile;
+  this.clickUIOnMobile.className = textBtn ? 'rmp-ad-click-ui-mobile' : 'rmp-ad-click-ui-mobile-no-text';
+  this.clickUIOnMobile.textContent = textBtn;
   this.clickUIOnMobile.addEventListener('touchend', this.onClickThrough);
   this.clickUIOnMobile.href = this.clickThroughUrl;
   this.clickUIOnMobile.target = '_blank';
@@ -171,6 +173,8 @@ LINEAR.update = function (url, type) {
       this.vastPlayer.addEventListener('click', this.onClickThrough);
     }
   }
+
+  MUTE.append.call(this);
 
   // skippable - only where vast player is different from 
   // content player

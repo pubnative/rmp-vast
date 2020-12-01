@@ -274,6 +274,7 @@ VASTPLAYER.append = function (url, type) {
     }
   } else {
     if (url && type) {
+      this.videoUrl = url;
       LINEAR.update.call(this, url, type);
     }
   }

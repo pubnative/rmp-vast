@@ -18,6 +18,8 @@ import ICONS from './creatives/icons';
   'use strict';
 
   window.DEBUG = true;
+  window.COLLECT_DEBUG_DATA = false;
+  window.SEND_LOGS_ONIMPRESSION = false;
 
   if (typeof window === 'undefined' || typeof window.document === 'undefined') {
     if (DEBUG) {
@@ -78,7 +80,9 @@ import ICONS from './creatives/icons';
       }
       FW.log(filteredEnv);
     }
+    this.sendLogs = FW.sendDebugData;
   };
+  window.RmpVast.version = 'v1';
 
   // enrich RmpVast prototype with API methods
   API.attach(window.RmpVast);
@@ -91,6 +95,9 @@ import ICONS from './creatives/icons';
     const redirectUrl = FW.getNodeValue(this.vastAdTagURI[0], true);
     if (DEBUG) {
       FW.log('redirect URL is ' + redirectUrl);
+      if (COLLECT_DEBUG_DATA) {
+        window.redirectUrl = redirectUrl;
+      }
     }
     if (redirectUrl !== null) {
       if (this.params.maxNumRedirects > this.redirectsFollowed) {
@@ -116,20 +123,18 @@ import ICONS from './creatives/icons';
       FW.log('_parseCreatives');
       FW.log(creative);
     }
-    // filter companion ads
-    for (let i = 0, len = creative.length; i < len; i++) {
-      const currentCreative = creative[i];
-      const companionAds = currentCreative.getElementsByTagName('CompanionAds');
-      if (companionAds.length > 0) {
-        COMPANION.parse.call(this, companionAds);
-        break;
-      }
-    }
+
     for (let i = 0, len = creative.length; i < len; i++) {
       const currentCreative = creative[i];
       // we only pick the first creative that is either Linear or NonLinearAds
       const nonLinearAds = currentCreative.getElementsByTagName('NonLinearAds');
       const linear = currentCreative.getElementsByTagName('Linear');
+      const companionAds = currentCreative.getElementsByTagName('CompanionAds');
+      // filter companion ads
+      if (companionAds.length > 0) {
+        COMPANION.parse.call(this, companionAds);
+        continue;
+      }
       // for now we ignore CreativeExtensions tag
       //let creativeExtensions = currentCreative.getElementsByTagName('CreativeExtensions');
       // we expect 1 Linear or NonLinearAds tag 
@@ -407,7 +412,7 @@ import ICONS from './creatives/icons';
       }
     }
     // in case no Creative with Wrapper we make our redirect call here
-    if (this.isWrapper && !creative) {
+    if (this.isWrapper && (!creative || (creative.length > 0 && creative[0].childNodes.length === 0))) {
       _execRedirect.call(this);
       return;
     }
@@ -467,6 +472,32 @@ import ICONS from './creatives/icons';
     _filterAdPod.call(this, ad);
   };
 
+  const _parseXml = function (data) {
+    HELPERS.createApiEvent.call(this, 'adtagloaded');
+    if (COLLECT_DEBUG_DATA) {
+      if (!window.xmlStr) window.xmlStr = [];
+      window.xmlStr.push(data);
+    }
+
+    let newxml;
+    try {
+      // Parse XML
+      const parser = new DOMParser();
+      newxml = parser.parseFromString(data, 'text/xml');
+      if (DEBUG) {
+        FW.log('parsed XML document follows');
+        FW.log(newxml);
+      }
+    } catch (e) {
+      FW.trace(e);
+      // in case this is a wrapper we need to ping for errors on originating tags
+      PING.error.call(this, 100);
+      VASTERRORS.process.call(this, 100);
+      return;
+    }
+    _onXmlAvailable.call(this, newxml);
+  };
+
   const _makeAjaxRequest = function (vastUrl) {
     // we check for required VAST URL and API here
     // as we need to have this.currentContentSrc available for iOS
@@ -489,24 +520,7 @@ import ICONS from './creatives/icons';
       if (DEBUG) {
         FW.log('VAST loaded from ' + this.adTagUrl);
       }
-      HELPERS.createApiEvent.call(this, 'adtagloaded');
-      let xml;
-      try {
-        // Parse XML
-        const parser = new DOMParser();
-        xml = parser.parseFromString(data, 'text/xml');
-        if (DEBUG) {
-          FW.log('parsed XML document follows');
-          FW.log(xml);
-        }
-      } catch (e) {
-        FW.trace(e);
-        // in case this is a wrapper we need to ping for errors on originating tags
-        PING.error.call(this, 100);
-        VASTERRORS.process.call(this, 100);
-        return;
-      }
-      _onXmlAvailable.call(this, xml);
+      _parseXml.call(this, data);
     }).catch((e) => {
       FW.trace(e);
       // in case this is a wrapper we need to ping for errors on originating tags
@@ -520,7 +534,7 @@ import ICONS from './creatives/icons';
     this.loadAds(vastUrl);
   };
 
-  window.RmpVast.prototype.loadAds = function (vastUrl) {
+  window.RmpVast.prototype.loadAds = function (vastUrl, isUrl = true) {
     if (DEBUG) {
       FW.log('loadAds starts');
     }
@@ -550,7 +564,7 @@ import ICONS from './creatives/icons';
       // on iOS we need to prevent seeking when linear ad is on stage
       CONTENTPLAYER.preventSeekingForCustomPlayback.call(this);
     }
-    _makeAjaxRequest.call(this, vastUrl);
+    isUrl ? _makeAjaxRequest.call(this, vastUrl) : _parseXml.call(this, vastUrl);
   };
   /* module:begins */
 })();

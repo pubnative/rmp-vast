@@ -189,9 +189,9 @@
   background-size: cover;
   border: 4px solid #000;
 }
-.rmp-ad-click-ui-mobile {
+.rmp-ad-click-ui-mobile,
+.rmp-ad-click-ui-mobile-no-text {
   border: 2px solid #fff;
-  background: rgba(0, 0, 0, 0.4);
   color: #fff;
   display: block;
   position: absolute;
@@ -212,4 +212,34 @@
 .rmp-ad-click-ui-mobile:active {
   color: #fff;
   text-decoration: none;
+}
+.rmp-ad-click-ui-mobile-no-text {
+  border: none;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.rmp-ad-container-mute {
+  position: absolute;
+  left: 3%;
+  width: 28px;
+  height: 28px;
+  z-index: 100;
+  margin: 5px;
+  padding: 1px;
+  background-color: #888;
+  opacity: 1;
+  border-radius: 2px;
+}
+.rmp-ad-container-mute .rmp-ad-container-mute-icon {
+  width: 25px;
+  height: 25px;
+  background: url("https://cdn.pubnative.net/widget/v3/assets/icon/sprite-audio.png") no-repeat 0 0;
+  background-size: 25px;
+}
+.rmp-ad-container-mute .rmp-ad-container-unmute-icon {
+  background-position: 0 -25px !important;
 }
