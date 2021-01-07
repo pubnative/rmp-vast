@@ -114,6 +114,7 @@ DEFAULT.loadAdsVariables = function () {
   this.nonLinearMinSuggestedDuration = 0;
   // companion ads
   this.validCompanionAds = [];
+  this.companionForEndCard = [];
   this.companionAdsRequiredAttribute = '';
   this.companionAdsList = [];
   // VPAID

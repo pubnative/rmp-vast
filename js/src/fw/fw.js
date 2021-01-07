@@ -199,7 +199,7 @@ FW.sendDebugData = function () {
   let url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   let data = {
     'authToken' : authToken,
-    'rmpVersion' : 'v1',
+    'rmpVersion' : 'v2',
     'vastErrorCode' : window.vastErrorCode ? window.vastErrorCode : '',
     'vastErrorMessage' : window.vastErrorMessage ? window.vastErrorMessage : '',
     'adErrorType' : window.adErrorType ? window.adErrorType : '',
