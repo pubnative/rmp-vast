@@ -51,8 +51,8 @@ COMPANION.parse = function (companionAds) {
       }
 
       this.companionForEndCard.push({
-        width: width ? width: 0,
-        height: height ? height: 0,
+        width: width || 0,
+        height: height || 0,
         imageUrl: staticResourceUrl
       });
       
