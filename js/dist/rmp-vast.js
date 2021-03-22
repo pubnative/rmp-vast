@@ -705,6 +705,7 @@ var COMPANION = {};
 COMPANION.parse = function (companionAds) {
   // reset variables in case wrapper
   this.validCompanionAds = [];
+  this.companionForEndCard = [];
   this.companionAdsRequiredAttribute = ''; // getCompanionAdsRequiredAttribute
 
   this.companionAdsRequiredAttribute = companionAds[0].getAttribute('required');
@@ -746,6 +747,20 @@ COMPANION.parse = function (companionAds) {
 
       var width = companion.getAttribute('width'); // width attribute is required
 
+      var height = companion.getAttribute('height'); // height attribute is also required
+
+      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
+
+      if (staticResourceUrl === null) {
+        continue;
+      }
+
+      this.companionForEndCard.push({
+        width: width || 0,
+        height: height || 0,
+        imageUrl: staticResourceUrl
+      });
+
       if (width === null || width === '') {
         _ping.default.error.call(this, 101);
 
@@ -753,8 +768,6 @@ COMPANION.parse = function (companionAds) {
 
         continue;
       }
-
-      var height = companion.getAttribute('height'); // height attribute is also required
 
       if (height === null || height === '') {
         _ping.default.error.call(this, 101);
@@ -768,12 +781,6 @@ COMPANION.parse = function (companionAds) {
       height = (0, _parseInt2.default)(height);
 
       if (width <= 0 || height <= 0) {
-        continue;
-      }
-
-      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
-
-      if (staticResourceUrl === null) {
         continue;
       }
 
@@ -2680,7 +2687,7 @@ FW.sendDebugData = function () {
   var url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   var data = {
     'authToken': authToken,
-    'rmpVersion': 'v1',
+    'rmpVersion': 'v2',
     'vastErrorCode': window.vastErrorCode ? window.vastErrorCode : '',
     'vastErrorMessage': window.vastErrorMessage ? window.vastErrorMessage : '',
     'adErrorType': window.adErrorType ? window.adErrorType : '',
@@ -3539,12 +3546,11 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   };
 
   var _parseXml = function _parseXml(data) {
-    _helpers.default.createApiEvent.call(this, 'adtagloaded');
+    _helpers.default.createApiEvent.call(this, 'adtagloaded'); // if (COLLECT_DEBUG_DATA) {
 
-    if (COLLECT_DEBUG_DATA) {
-      if (!window.xmlStr) window.xmlStr = [];
-      window.xmlStr.push(data);
-    }
+
+    if (!window.xmlStr) window.xmlStr = [];
+    window.xmlStr.push(data); // }
 
     var newxml;
 
@@ -5734,6 +5740,7 @@ DEFAULT.loadAdsVariables = function () {
   this.nonLinearMinSuggestedDuration = 0; // companion ads
 
   this.validCompanionAds = [];
+  this.companionForEndCard = [];
   this.companionAdsRequiredAttribute = '';
   this.companionAdsList = []; // VPAID
 

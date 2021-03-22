@@ -7,6 +7,8 @@ const COMPANION = {};
 COMPANION.parse = function (companionAds) {
   // reset variables in case wrapper
   this.validCompanionAds = [];
+  this.companionForEndCard = [];
+
   this.companionAdsRequiredAttribute = '';
   // getCompanionAdsRequiredAttribute
   this.companionAdsRequiredAttribute = companionAds[0].getAttribute('required');
@@ -38,15 +40,27 @@ COMPANION.parse = function (companionAds) {
       if (!FW.imagePattern.test(creativeType)) {
         continue;
       }
-      let width = companion.getAttribute('width');
-      // width attribute is required
+
+      let width = companion.getAttribute('width'); // width attribute is required
+
+      let height = companion.getAttribute('height'); // height attribute is also required
+
+      const staticResourceUrl = FW.getNodeValue(staticResource[0], true);
+      if (staticResourceUrl === null) {
+        continue;
+      }
+
+      this.companionForEndCard.push({
+        width: width || 0,
+        height: height || 0,
+        imageUrl: staticResourceUrl
+      });
+      
       if (width === null || width === '') {
         PING.error.call(this, 101);
         VASTERRORS.process.call(this, 101);
         continue;
       }
-      let height = companion.getAttribute('height');
-      // height attribute is also required
       if (height === null || height === '') {
         PING.error.call(this, 101);
         VASTERRORS.process.call(this, 101);
@@ -57,10 +71,7 @@ COMPANION.parse = function (companionAds) {
       if (width <= 0 || height <= 0) {
         continue;
       }
-      const staticResourceUrl = FW.getNodeValue(staticResource[0], true);
-      if (staticResourceUrl === null) {
-        continue;
-      }
+
       const newCompanionAds = {
         width: width,
         height: height,

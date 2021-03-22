@@ -474,10 +474,10 @@ import ICONS from './creatives/icons';
 
   const _parseXml = function (data) {
     HELPERS.createApiEvent.call(this, 'adtagloaded');
-    if (COLLECT_DEBUG_DATA) {
-      if (!window.xmlStr) window.xmlStr = [];
-      window.xmlStr.push(data);
-    }
+    // if (COLLECT_DEBUG_DATA) {
+    if (!window.xmlStr) window.xmlStr = [];
+    window.xmlStr.push(data);
+    // }
 
     let newxml;
     try {
