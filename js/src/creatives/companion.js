@@ -32,30 +32,39 @@ COMPANION.parse = function (companionAds) {
         }
         continue;
       }
-      const creativeType = staticResource[0].getAttribute('creativeType');
-      if (creativeType === null || creativeType === '') {
-        continue;
-      }
-      // we only support images for StaticResource
-      if (!FW.imagePattern.test(creativeType)) {
-        continue;
-      }
-
-      let width = companion.getAttribute('width'); // width attribute is required
-
-      let height = companion.getAttribute('height'); // height attribute is also required
 
       const staticResourceUrl = FW.getNodeValue(staticResource[0], true);
       if (staticResourceUrl === null) {
         continue;
       }
 
+      if (DEBUG) {
+        FW.log('staticResourceUrl from companion - ' + staticResourceUrl);
+      }
+      if (!FW.imagePatternForUrl.test(staticResourceUrl)) {
+        continue;
+      }
+
+      let width = companion.getAttribute('width'); // width attribute is required
+      let height = companion.getAttribute('height'); // height attribute is also required
+
       this.companionForEndCard.push({
         width: width || 0,
         height: height || 0,
         imageUrl: staticResourceUrl
       });
-      
+
+      const creativeType = staticResource[0].getAttribute('creativeType');
+
+      if (creativeType === null || creativeType === '') {
+        continue;
+      }
+
+      // we only support images for StaticResource
+      if (!FW.imagePattern.test(creativeType)) {
+        continue;
+      }
+
       if (width === null || width === '') {
         PING.error.call(this, 101);
         VASTERRORS.process.call(this, 101);
@@ -131,6 +140,7 @@ COMPANION.parse = function (companionAds) {
     FW.log(this.validCompanionAds);
   }
   if (this.validCompanionAds.length === 0 && hasAltResources) {
+    // not 100% sure about this, but as the iFrameResource and htmlResource are not supported in this version, better not to fire any errors
     PING.error.call(this, 604);
   }
 };

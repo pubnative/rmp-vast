@@ -417,5 +417,6 @@ FW.openWindow = function (link) {
 };
 
 FW.imagePattern = /^image\/(gif|jpeg|jpg|png)$/i;
+FW.imagePatternForUrl = /\.(jpg|gif|png|jpeg)$/i;
 
 export default FW;
