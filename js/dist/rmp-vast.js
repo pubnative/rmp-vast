@@ -734,14 +734,17 @@ COMPANION.parse = function (companionAds) {
         continue;
       }
 
-      var creativeType = staticResource[0].getAttribute('creativeType');
+      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
 
-      if (creativeType === null || creativeType === '') {
+      if (staticResourceUrl === null) {
         continue;
-      } // we only support images for StaticResource
+      }
 
+      if (DEBUG) {
+        _fw.default.log('staticResourceUrl from companion - ' + staticResourceUrl);
+      }
 
-      if (!_fw.default.imagePattern.test(creativeType)) {
+      if (!_fw.default.imagePatternForUrl.test(staticResourceUrl)) {
         continue;
       }
 
@@ -749,17 +752,21 @@ COMPANION.parse = function (companionAds) {
 
       var height = companion.getAttribute('height'); // height attribute is also required
 
-      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
-
-      if (staticResourceUrl === null) {
-        continue;
-      }
-
       this.companionForEndCard.push({
         width: width || 0,
         height: height || 0,
         imageUrl: staticResourceUrl
       });
+      var creativeType = staticResource[0].getAttribute('creativeType');
+
+      if (!creativeType) {
+        continue;
+      } // we only support images for StaticResource
+
+
+      if (!_fw.default.imagePattern.test(creativeType)) {
+        continue;
+      }
 
       if (width === null || width === '') {
         _ping.default.error.call(this, 101);
@@ -856,6 +863,7 @@ COMPANION.parse = function (companionAds) {
   }
 
   if (this.validCompanionAds.length === 0 && hasAltResources) {
+    // not 100% sure about this, but as the iFrameResource and htmlResource are not supported in this version, better not to fire any errors
     _ping.default.error.call(this, 604);
   }
 };
@@ -2929,6 +2937,7 @@ FW.openWindow = function (link) {
 };
 
 FW.imagePattern = /^image\/(gif|jpeg|jpg|png)$/i;
+FW.imagePatternForUrl = /\.(jpg|gif|png|jpeg)$/i;
 var _default = FW;
 exports.default = _default;
 
