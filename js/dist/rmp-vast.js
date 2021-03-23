@@ -759,7 +759,7 @@ COMPANION.parse = function (companionAds) {
       });
       var creativeType = staticResource[0].getAttribute('creativeType');
 
-      if (creativeType === null || creativeType === '') {
+      if (!creativeType) {
         continue;
       } // we only support images for StaticResource
 

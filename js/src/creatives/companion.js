@@ -56,7 +56,7 @@ COMPANION.parse = function (companionAds) {
 
       const creativeType = staticResource[0].getAttribute('creativeType');
 
-      if (creativeType === null || creativeType === '') {
+      if (!creativeType) {
         continue;
       }
 
