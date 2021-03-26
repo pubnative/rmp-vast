@@ -319,7 +319,10 @@ VASTPLAYER.getMute = function () {
 };
 
 VASTPLAYER.play = function (firstVastPlayerPlayRequest) {
-  if (this.vastPlayer && this.vastPlayer.paused) {
+  if (DEBUG) {
+    FW.log('---- VASTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
+  }
+  if (this.vastPlayer && this.vastPlayer.paused && (this.autoplay || this.manualPlay)) {
     HELPERS.playPromise.call(this, 'vast', firstVastPlayerPlayRequest);
   }
 };
