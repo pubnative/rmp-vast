@@ -7,7 +7,7 @@ CONTENTPLAYER.play = function (firstContentPlayerPlayRequest) {
   if (DEBUG) {
     FW.log('---- CONTENTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
   }
-  if (this.vastPlayer && this.vastPlayer.paused && (this.autoplay || this.manualPlay)) {
+  if (this.contentPlayer && this.contentPlayer.paused && (this.autoplay || this.manualPlay)) {
     HELPERS.playPromise.call(this, 'content', firstContentPlayerPlayRequest);
   }
 };

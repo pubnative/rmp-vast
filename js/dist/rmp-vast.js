@@ -3744,7 +3744,7 @@ CONTENTPLAYER.play = function (firstContentPlayerPlayRequest) {
     _fw.default.log('---- CONTENTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
   }
 
-  if (this.vastPlayer && this.vastPlayer.paused && (this.autoplay || this.manualPlay)) {
+  if (this.contentPlayer && this.contentPlayer.paused && (this.autoplay || this.manualPlay)) {
     _helpers.default.playPromise.call(this, 'content', firstContentPlayerPlayRequest);
   }
 };
