@@ -705,7 +705,6 @@ var COMPANION = {};
 COMPANION.parse = function (companionAds) {
   // reset variables in case wrapper
   this.validCompanionAds = [];
-  this.companionForEndCard = [];
   this.companionAdsRequiredAttribute = ''; // getCompanionAdsRequiredAttribute
 
   this.companionAdsRequiredAttribute = companionAds[0].getAttribute('required');
@@ -734,32 +733,9 @@ COMPANION.parse = function (companionAds) {
         continue;
       }
 
-      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
-
-      if (staticResourceUrl === null) {
-        continue;
-      }
-
-      if (DEBUG) {
-        _fw.default.log('staticResourceUrl from companion - ' + staticResourceUrl);
-      }
-
-      if (!_fw.default.imagePatternForUrl.test(staticResourceUrl)) {
-        continue;
-      }
-
-      var width = companion.getAttribute('width'); // width attribute is required
-
-      var height = companion.getAttribute('height'); // height attribute is also required
-
-      this.companionForEndCard.push({
-        width: width || 0,
-        height: height || 0,
-        imageUrl: staticResourceUrl
-      });
       var creativeType = staticResource[0].getAttribute('creativeType');
 
-      if (!creativeType) {
+      if (creativeType === null || creativeType === '') {
         continue;
       } // we only support images for StaticResource
 
@@ -768,6 +744,8 @@ COMPANION.parse = function (companionAds) {
         continue;
       }
 
+      var width = companion.getAttribute('width'); // width attribute is required
+
       if (width === null || width === '') {
         _ping.default.error.call(this, 101);
 
@@ -775,6 +753,8 @@ COMPANION.parse = function (companionAds) {
 
         continue;
       }
+
+      var height = companion.getAttribute('height'); // height attribute is also required
 
       if (height === null || height === '') {
         _ping.default.error.call(this, 101);
@@ -788,6 +768,12 @@ COMPANION.parse = function (companionAds) {
       height = (0, _parseInt2.default)(height);
 
       if (width <= 0 || height <= 0) {
+        continue;
+      }
+
+      var staticResourceUrl = _fw.default.getNodeValue(staticResource[0], true);
+
+      if (staticResourceUrl === null) {
         continue;
       }
 
@@ -863,7 +849,6 @@ COMPANION.parse = function (companionAds) {
   }
 
   if (this.validCompanionAds.length === 0 && hasAltResources) {
-    // not 100% sure about this, but as the iFrameResource and htmlResource are not supported in this version, better not to fire any errors
     _ping.default.error.call(this, 604);
   }
 };
@@ -2695,7 +2680,7 @@ FW.sendDebugData = function () {
   var url = 'https://api.pubnative.net/api/v3/error?apptoken=d7c09dd013db49b8be3bd6d1617604a3';
   var data = {
     'authToken': authToken,
-    'rmpVersion': 'v3',
+    'rmpVersion': 'v1',
     'vastErrorCode': window.vastErrorCode ? window.vastErrorCode : '',
     'vastErrorMessage': window.vastErrorMessage ? window.vastErrorMessage : '',
     'adErrorType': window.adErrorType ? window.adErrorType : '',
@@ -2937,7 +2922,6 @@ FW.openWindow = function (link) {
 };
 
 FW.imagePattern = /^image\/(gif|jpeg|jpg|png)$/i;
-FW.imagePatternForUrl = /\.(jpg|gif|png|jpeg)$/i;
 var _default = FW;
 exports.default = _default;
 
@@ -3555,11 +3539,12 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
   };
 
   var _parseXml = function _parseXml(data) {
-    _helpers.default.createApiEvent.call(this, 'adtagloaded'); // if (COLLECT_DEBUG_DATA) {
+    _helpers.default.createApiEvent.call(this, 'adtagloaded');
 
-
-    if (!window.xmlStr) window.xmlStr = [];
-    window.xmlStr.push(data); // }
+    if (COLLECT_DEBUG_DATA) {
+      if (!window.xmlStr) window.xmlStr = [];
+      window.xmlStr.push(data);
+    }
 
     var newxml;
 
@@ -3678,39 +3663,6 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
 
     isUrl ? _makeAjaxRequest.call(this, vastUrl) : _parseXml.call(this, vastUrl);
   };
-
-  RmpVast.prototype.pnVideoPlay = function () {
-    var _this2 = this;
-
-    this.manualPlay = true;
-
-    if (DEBUG) {
-      _fw.default.log('---- pnVideoPlay called');
-
-      _fw.default.log('this.vastPlayer.readyState - ' + this.vastPlayer.readyState);
-
-      _fw.default.log('this.contentPlayer.readyState - ' + this.contentPlayer.readyState);
-    }
-
-    if (this.vastPlayer && this.vastPlayer.readyState > 3 || this.contentPlayer && this.contentPlayer.readyState > 3) {
-      this.play();
-    } else {
-      this.vastPlayer.addEventListener('canplaythrough', function () {
-        if (DEBUG) {
-          _fw.default.log('---- canplaythrough fired for vastPlayer, readyState - ' + _this2.vastPlayer.readyState);
-        }
-
-        _this2.play();
-      });
-      this.contentPlayer.addEventListener('canplaythrough', function () {
-        if (DEBUG) {
-          _fw.default.log('---- canplaythrough fired for contentPlayer, readyState - ' + _this2.contentPlayer.readyState);
-        }
-
-        _this2.play();
-      });
-    }
-  };
   /* module:begins */
 
 })();
@@ -3740,11 +3692,7 @@ var _helpers = _interopRequireDefault(require("../utils/helpers"));
 var CONTENTPLAYER = {};
 
 CONTENTPLAYER.play = function (firstContentPlayerPlayRequest) {
-  if (DEBUG) {
-    _fw.default.log('---- CONTENTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
-  }
-
-  if (this.contentPlayer && this.contentPlayer.paused && (this.autoplay || this.manualPlay)) {
+  if (this.contentPlayer && this.contentPlayer.paused) {
     _helpers.default.playPromise.call(this, 'content', firstContentPlayerPlayRequest);
   }
 };
@@ -4244,11 +4192,7 @@ VASTPLAYER.getMute = function () {
 };
 
 VASTPLAYER.play = function (firstVastPlayerPlayRequest) {
-  if (DEBUG) {
-    _fw.default.log('---- VASTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
-  }
-
-  if (this.vastPlayer && this.vastPlayer.paused && (this.autoplay || this.manualPlay)) {
+  if (this.vastPlayer && this.vastPlayer.paused) {
     _helpers.default.playPromise.call(this, 'vast', firstVastPlayerPlayRequest);
   }
 };
@@ -5790,7 +5734,6 @@ DEFAULT.loadAdsVariables = function () {
   this.nonLinearMinSuggestedDuration = 0; // companion ads
 
   this.validCompanionAds = [];
-  this.companionForEndCard = [];
   this.companionAdsRequiredAttribute = '';
   this.companionAdsList = []; // VPAID
 

@@ -4,7 +4,10 @@ import HELPERS from '../utils/helpers';
 const CONTENTPLAYER = {};
 
 CONTENTPLAYER.play = function (firstContentPlayerPlayRequest) {
-  if (this.contentPlayer && this.contentPlayer.paused) {
+  if (DEBUG) {
+    FW.log('---- CONTENTPLAYER.play - autoplay - ' + this.autoplay + ', manualPlay - ' + this.manualPlay);
+  }
+  if (this.contentPlayer && this.contentPlayer.paused && (this.autoplay || this.manualPlay)) {
     HELPERS.playPromise.call(this, 'content', firstContentPlayerPlayRequest);
   }
 };

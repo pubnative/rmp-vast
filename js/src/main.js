@@ -566,6 +566,34 @@ import ICONS from './creatives/icons';
     }
     isUrl ? _makeAjaxRequest.call(this, vastUrl) : _parseXml.call(this, vastUrl);
   };
+
+  RmpVast.prototype.pnVideoPlay = function () {
+    this.manualPlay = true;
+
+    if (DEBUG) {
+      FW.log('---- pnVideoPlay called');
+      FW.log('this.vastPlayer.readyState - ' + this.vastPlayer.readyState);
+      FW.log('this.contentPlayer.readyState - ' + this.contentPlayer.readyState);
+    }
+
+    if ((this.vastPlayer && this.vastPlayer.readyState > 3) || (this.contentPlayer && this.contentPlayer.readyState > 3)) {
+      this.play();
+    }
+    else {
+      this.vastPlayer.addEventListener('canplaythrough', () => {
+        if (DEBUG) {
+          FW.log('---- canplaythrough fired for vastPlayer, readyState - ' + this.vastPlayer.readyState);
+        }
+        this.play();
+      });
+      this.contentPlayer.addEventListener('canplaythrough', () => {
+        if (DEBUG) {
+          FW.log('---- canplaythrough fired for contentPlayer, readyState - ' + this.contentPlayer.readyState);
+        }
+        this.play();
+      });
+    }
+  };
   /* module:begins */
 })();
 /* module:ends */
