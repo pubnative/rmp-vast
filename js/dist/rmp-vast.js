@@ -3692,7 +3692,7 @@ var _icons = _interopRequireDefault(require("./creatives/icons"));
       _fw.default.log('this.contentPlayer.readyState - ' + this.contentPlayer.readyState);
     }
 
-    if (this.vastPlayer.readyState > 3 || this.contentPlayer.readyState > 3) {
+    if (this.vastPlayer && this.vastPlayer.readyState > 3 || this.contentPlayer && this.contentPlayer.readyState > 3) {
       this.play();
     } else {
       this.vastPlayer.addEventListener('canplaythrough', function () {

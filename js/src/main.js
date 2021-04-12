@@ -576,7 +576,7 @@ import ICONS from './creatives/icons';
       FW.log('this.contentPlayer.readyState - ' + this.contentPlayer.readyState);
     }
 
-    if (this.vastPlayer.readyState > 3 || this.contentPlayer.readyState > 3) {
+    if ((this.vastPlayer && this.vastPlayer.readyState > 3) || (this.contentPlayer && this.contentPlayer.readyState > 3)) {
       this.play();
     }
     else {
